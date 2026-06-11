@@ -1,0 +1,66 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  searches  Search[]
+}
+
+model Search {
+  id          String        @id @default(cuid())
+  query       String
+  timestamp   DateTime      @default(now())
+  riskScore   Int?
+  userId      String?
+  user        User?         @relation(fields: [userId], references: [id])
+  analysis    RiskAnalysis?
+
+  @@index([query])
+  @@index([timestamp])
+}
+
+model RiskAnalysis {
+  id                  String   @id @default(cuid())
+  searchId            String   @unique
+  search              Search   @relation(fields: [searchId], references: [id])
+  ensName             String
+  riskScore           Int
+  isNewRegistration   Boolean  @default(false)
+  hasAvatar           Boolean  @default(false)
+  hasSocialRecords    Boolean  @default(false)
+  hasReverseRecord    Boolean  @default(false)
+  isTyposquat         Boolean  @default(false)
+  resolverMismatch    Boolean  @default(false)
+  similarNames        String[] @default([])
+  explanation         String
+  createdAt           DateTime @default(now())
+
+  @@index([ensName])
+}
+
+model ENSProfileCache {
+  id               String   @id @default(cuid())
+  ensName          String   @unique
+  ownerAddress     String?
+  resolverAddress  String?
+  registrationDate DateTime?
+  expiryDate       DateTime?
+  avatarUrl        String?
+  resolvedAddress  String?
+  hasReverseRecord Boolean  @default(false)
+  textRecords      Json?
+  cachedAt         DateTime @default(now())
+  expiresAt        DateTime
+
+  @@index([ensName])
+  @@index([expiresAt])
+}
