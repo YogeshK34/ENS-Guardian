@@ -163,4 +163,4 @@ Set `DATABASE_URL` in Vercel environment variables and deploy.
 
 ---
 
-Built for ETHGlobal · MIT License
+MIT License
