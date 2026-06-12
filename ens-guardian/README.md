@@ -1,83 +1,121 @@
-# ENS Guardian
+# 🛡️ ENS Guardian
 
 > **Trust Before You Send.** — Analyze ENS names for phishing, typosquatting, and trust signals before sending crypto.
 
-![ENS Guardian](https://img.shields.io/badge/ENS-Guardian-6366f1?style=for-the-badge&logo=ethereum)
-![Next.js](https://img.shields.io/badge/Next.js-16-black?style=for-the-badge&logo=next.js)
-![TypeScript](https://img.shields.io/badge/TypeScript-5.9-blue?style=for-the-badge&logo=typescript)
+![Next.js](https://img.shields.io/badge/Next.js-16-black?style=flat-square&logo=next.js)
+![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?style=flat-square&logo=typescript)
+![Prisma](https://img.shields.io/badge/Prisma-7-2D3748?style=flat-square&logo=prisma)
+![License](https://img.shields.io/badge/License-MIT-green?style=flat-square)
+
+---
+
+## What It Does
+
+ENS Guardian helps users identify potentially malicious ENS names **before** sending funds. Enter any `.eth` name or `0x` address and get:
+
+- **Risk Score (0–100)** with human-readable explanation
+- **Typosquatting detection** via Levenshtein distance & lookalike analysis
+- **Trust signals** — avatar, reverse record, social links, account age
+- **On-chain profile** — owner, resolver, registration/expiry dates, text records
 
 ---
 
 ## Features
 
 | Feature | Description |
-|---------|-------------|
-| 🔍 **ENS Lookup** | Resolve owner, avatar, resolver, dates, text records |
-| ⚠️ **Typosquatting Detection** | Levenshtein + lookalike character analysis |
-| 🛡️ **Risk Engine** | 0–100 custom scoring across 6 risk factors |
-| ✅ **Trust Indicators** | Verified avatar, reverse record, GitHub, Twitter, age |
-| 📖 **Human Explanations** | Plain-English security verdicts |
-| 📈 **Trending Dashboard** | Most-searched risky ENS names (last 7 days) |
-| 🕒 **Search History** | Persistent lookup log with scores |
-| 🎓 **Security Education** | Typosquatting, homograph attacks, resolver risks |
-| 🤖 **AI Summary** | GPT-4o-mini powered security verdict (optional) |
+|---|---|
+| 🔍 ENS Lookup | Resolve owner, avatar, resolver, dates, and text records |
+| ⚠️ Typosquatting Detection | Character duplication, omission, replacement, transposition |
+| 🛡️ Risk Engine | Custom scoring across 6 risk factors (max 100) |
+| ✅ Trust Indicators | Green badges for avatar, reverse record, GitHub, Twitter, age |
+| 📖 Human Explanations | Plain-English security verdicts — not just numbers |
+| 📈 Trending Dashboard | Most-searched risky ENS names in the last 7 days |
+| 🕒 Search History | Persistent lookup log with risk scores |
+| 🎓 Security Education | Typosquatting, homograph attacks, resolver risks, best practices |
+| 🤖 AI Summary | GPT-4o-mini security verdict (optional) |
+
+---
 
 ## Tech Stack
 
-- **Frontend**: Next.js 16 App Router · TypeScript · TailwindCSS v4 · shadcn/ui · Framer Motion
-- **Web3**: Viem · ENS Public Resolver APIs · ENS Subgraph
-- **Backend**: Next.js Route Handlers
-- **Database**: PostgreSQL · Prisma 7
-- **AI**: OpenAI GPT-4o-mini (optional)
+| Layer | Technologies |
+|---|---|
+| Frontend | Next.js 16 (App Router), TypeScript, TailwindCSS v4, shadcn/ui, Framer Motion |
+| Web3 | Viem, ENS Public Resolver, ENS Subgraph |
+| Backend | Next.js Route Handlers |
+| Database | PostgreSQL (Neon), Prisma 7 |
+| AI | OpenAI GPT-4o-mini (optional) |
+
+---
 
 ## Getting Started
 
-### 1. Install dependencies
+### Prerequisites
+
+- Node.js 18+
+- pnpm
+- PostgreSQL database ([Neon](https://neon.tech) recommended)
+
+### Setup
 
 ```bash
-cd ens-guardian
+# 1. Install dependencies
 pnpm install
-```
 
-### 2. Set up environment
-
-```bash
+# 2. Configure environment (first time only!)
 cp .env.example .env
-# Edit .env with your DATABASE_URL
 ```
 
-### 3. Set up database
+Now open `.env` and set your `DATABASE_URL` to your Neon connection string:
 
-```bash
-# Start PostgreSQL and create DB
-sudo systemctl start postgresql
-psql -U postgres -c "CREATE DATABASE ens_guardian;"
-psql -U postgres -c "CREATE USER ens_user WITH PASSWORD 'yourpassword';"
-psql -U postgres -c "GRANT ALL PRIVILEGES ON DATABASE ens_guardian TO ens_user;"
-
-# Run migrations
-pnpm prisma migrate dev --name init
+```env
+DATABASE_URL="postgresql://USER:PASSWORD@ep-xxx.us-east-1.aws.neon.tech/neondb?sslmode=require"
 ```
 
-### 4. Start dev server
+> ⚠️ **Do not skip this step.** The default `.env.example` has a placeholder `localhost` URL that will not work.
 
 ```bash
+# 3. Push schema to database
+npx prisma db push
+
+# 4. Generate Prisma client
+npx prisma generate
+
+# 5. Start dev server
 pnpm dev
-# Open http://localhost:3000
 ```
+
+Open [http://localhost:3000](http://localhost:3000).
+
+---
 
 ## Environment Variables
 
 | Variable | Required | Description |
-|----------|----------|-------------|
-| `DATABASE_URL` | ✅ Yes | PostgreSQL connection string |
-| `ETH_RPC_URL` | ❌ Optional | Ethereum RPC (defaults to LlamaRPC) |
-| `OPENAI_API_KEY` | ❌ Optional | Enables AI risk summaries |
+|---|---|---|
+| `DATABASE_URL` | ✅ | PostgreSQL connection string |
+| `ETH_RPC_URL` | ❌ | Ethereum RPC endpoint (defaults to LlamaRPC) |
+| `OPENAI_API_KEY` | ❌ | Enables AI-powered risk summaries |
+
+---
+
+## API Reference
+
+| Endpoint | Method | Description |
+|---|---|---|
+| `/api/lookup?name=` | GET | ENS profile lookup |
+| `/api/risk?name=` | GET | Full risk analysis with scoring |
+| `/api/profile?name=` | GET | Profile + risk summary |
+| `/api/history?limit=` | GET | Recent search history |
+| `/api/trending` | GET | Top suspicious ENS names (7d) |
+| `/api/ai-summary` | POST | AI-generated security verdict |
+
+---
 
 ## Risk Scoring
 
 | Factor | Points |
-|--------|--------|
+|---|---|
 | Registered < 30 days | +25 |
 | No avatar | +10 |
 | No social records | +15 |
@@ -85,17 +123,43 @@ pnpm dev
 | Typosquatting similarity | +30 |
 | Non-standard resolver | +20 |
 
-| Score Range | Risk Level |
-|-------------|------------|
-| 0–30 | 🟢 Low |
-| 31–60 | 🟡 Medium |
-| 61–100 | 🔴 High |
+| Range | Level |
+|---|---|
+| 0–30 | 🟢 Low Risk |
+| 31–60 | 🟡 Medium Risk |
+| 61–100 | 🔴 High Risk |
+
+---
+
+## Project Structure
+
+```
+ens-guardian/
+├── app/
+│   ├── page.tsx              # Landing page
+│   ├── analyze/              # Risk analysis page
+│   ├── history/              # Search history page
+│   ├── trending/             # Trending suspicious ENS
+│   ├── learn/                # Security education
+│   └── api/                  # Route handlers
+├── components/               # UI components
+├── lib/
+│   ├── ens/lookup.ts         # ENS resolution + caching
+│   ├── ens/similarity.ts     # Typosquatting detection
+│   ├── risk/engine.ts        # Risk scoring engine
+│   ├── prisma.ts             # Database client
+│   └── viem.ts               # Ethereum client
+├── prisma/schema.prisma      # Database schema
+└── types/index.ts            # TypeScript interfaces
+```
+
+---
 
 ## Deployment
 
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new)
 
-Set `DATABASE_URL` in your Vercel environment variables and deploy.
+Set `DATABASE_URL` in Vercel environment variables and deploy.
 
 ---
 
