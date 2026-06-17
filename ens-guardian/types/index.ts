@@ -15,6 +15,8 @@ export interface SimilarName {
   exists: boolean;
   registrationDate: Date | null;
   distance: number;
+  /** "typo" = classic Levenshtein variant; "homograph" = Unicode lookalike attack */
+  attackType: "typo" | "homograph";
 }
 
 export interface RiskFactor {
