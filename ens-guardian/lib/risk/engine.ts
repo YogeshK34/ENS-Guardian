@@ -60,12 +60,29 @@ export function scoreRisk(
   });
   if (noReverse) score += 20;
 
+  // Factor: Homograph attack (Unicode lookalikes) — +40
+  const homographMatches = similarNames.filter((s) => s.attackType === "homograph");
+  const isHomographAttack = homographMatches.length > 0;
+  factors.push({
+    id: "homograph_attack",
+    label: "Unicode Homograph Attack",
+    description: isHomographAttack
+      ? `This name uses visually identical Unicode characters to impersonate: ${homographMatches.map((s) => s.name).slice(0, 3).join(", ")}`
+      : "No Unicode homograph attack detected.",
+    points: 40,
+    triggered: isHomographAttack,
+  });
+  if (isHomographAttack) score += 40;
+
   // Factor: Typosquatting similarity — +30
-  const isTyposquat = similarNames.length > 0;
+  const typoMatches = similarNames.filter((s) => s.attackType === "typo");
+  const isTyposquat = typoMatches.length > 0;
   factors.push({
     id: "typosquat",
     label: "Typosquatting Risk",
-    description: `Similar registered ENS names found: ${similarNames.map((s) => s.name).slice(0, 3).join(", ")}`,
+    description: isTyposquat
+      ? `Similar registered ENS names found: ${typoMatches.map((s) => s.name).slice(0, 3).join(", ")}`
+      : "No typosquatting variants detected.",
     points: 30,
     triggered: isTyposquat,
   });
@@ -168,6 +185,11 @@ export function buildExplanation(
 
   if (triggered.find((f) => f.id === "new_registration")) {
     parts.push("The domain was registered recently, which is a common pattern in phishing attempts.");
+  }
+  if (triggered.find((f) => f.id === "homograph_attack")) {
+    parts.push(
+      "⚠️ This name uses Unicode characters that are visually identical to Latin letters — a sophisticated homograph attack designed to trick users."
+    );
   }
   if (triggered.find((f) => f.id === "typosquat")) {
     parts.push("It closely resembles one or more established ENS names — a classic typosquatting pattern.");

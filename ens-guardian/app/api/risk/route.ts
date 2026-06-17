@@ -43,6 +43,7 @@ export async function GET(request: NextRequest) {
               hasSocialRecords: report.trustSignals.find((s) => s.id === "github" || s.id === "twitter")?.active ?? false,
               hasReverseRecord: report.trustSignals.find((s) => s.id === "reverse_record")?.active ?? false,
               isTyposquat: report.riskFactors.find((f) => f.id === "typosquat")?.triggered ?? false,
+              isHomographAttack: report.riskFactors.find((f) => f.id === "homograph_attack")?.triggered ?? false,
               resolverMismatch: report.riskFactors.find((f) => f.id === "resolver_mismatch")?.triggered ?? false,
               similarNames: similarNames.map((s) => s.name),
               explanation: report.explanation,

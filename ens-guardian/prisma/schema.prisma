@@ -39,6 +39,7 @@ model RiskAnalysis {
   hasSocialRecords    Boolean  @default(false)
   hasReverseRecord    Boolean  @default(false)
   isTyposquat         Boolean  @default(false)
+  isHomographAttack   Boolean  @default(false)
   resolverMismatch    Boolean  @default(false)
   similarNames        String[] @default([])
   explanation         String
